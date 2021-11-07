@@ -22,7 +22,6 @@ def get_db():
         db.close()
 
 
-
 @app.get("/")
 def home(request: Request, forward_pe=None, dividend_amount=None, ma50=None, ma200=None, db: Session = Depends(get_db)):
     stock_filter = request.query_params.get('filter', False)

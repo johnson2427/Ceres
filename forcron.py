@@ -83,7 +83,7 @@ class StockData(TDAmeritrade, SqlConnection):
     def get_historical_prices(self):
         stocks_dict = self.get_stocks_dict_from_db()
         for key in stocks_dict.keys():
-            stock = stocks_dict[key]
+            stock = key
             price_data = self.get_prices(stock)
             for elem in price_data['candles']:
                 open = float(elem['open'])
@@ -95,7 +95,7 @@ class StockData(TDAmeritrade, SqlConnection):
                 date_time = datetime.strptime(date_time, "%m-%d-%Y %H:%M:%S")
                 try:
                     self.cursor.execute(f"INSERT INTO public.prices(stock_id, interval, date_time, open, high, low, "
-                                        f"close, volume) VALUES (%s, %s, %s, %s, %s, %s, %s, %s)", (int(key),
+                                        f"close, volume) VALUES (%s, %s, %s, %s, %s, %s, %s, %s)", (int(stocks_dict[key]),
                                                                                                     self.frequency_type,
                                                                                                     date_time, open,
                                                                                                     high, low, close,
@@ -118,7 +118,7 @@ class StockData(TDAmeritrade, SqlConnection):
 
 if __name__ == "__main__":
     sd = StockData()
-    # sd.get_stocks()
-    # sd.get_historical_prices()
-    sd.create_strategy("opening_range_breakout")
-    sd.create_strategy("opening_range_breakdown")
+    sd.get_stocks()
+    sd.get_historical_prices()
+    # sd.create_strategy("opening_range_breakout")
+    # sd.create_strategy("opening_range_breakdown")
