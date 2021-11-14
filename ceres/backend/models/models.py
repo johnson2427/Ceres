@@ -1,6 +1,5 @@
 from sqlalchemy import Column, Integer, String, Numeric, DateTime, ForeignKey, Boolean, ARRAY
-
-from database import Base
+from ceres.backend.db.database import Base
 
 
 class Stocks(Base):
@@ -97,17 +96,28 @@ class StockFundamentals(Base):
 
 
 class StockPrices(Base):
-    __tablename__ = "prices"
+    __tablename__ = "prices_new"
 
     id = Column(Integer, primary_key=True)
     stock_id = Column(Integer, ForeignKey("stocks.id"))
     interval = Column(String)
-    date_time = Column(DateTime)
+    datetime = Column(DateTime)
     open = Column(Numeric(10, 2))
     high = Column(Numeric(10, 2))
     low = Column(Numeric(10, 2))
     close = Column(Numeric(10, 2))
     volume = Column(Integer)
+    sma20 = Column(Numeric(10, 2))
+    sma50 = Column(Numeric(10, 2))
+    sma100 = Column(Numeric(10, 2))
+    sma200 = Column(Numeric(10, 2))
+    bb_lower = Column(Numeric(10, 2))
+    bb_middle = Column(Numeric(10, 2))
+    bb_upper = Column(Numeric(10, 2))
+    macd = Column(Numeric(10, 2))
+    macd_signal = Column(Numeric(10, 2))
+    macd_histogram = Column(Numeric(10, 2))
+    rsi14 = Column(Numeric(10, 2))
 
 
 class StockOptions(Base):

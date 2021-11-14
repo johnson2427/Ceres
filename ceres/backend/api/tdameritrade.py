@@ -1,6 +1,7 @@
 import requests
 import json
 import config
+from datetime import datetime
 from yahoo_fin import stock_info as si
 
 
@@ -36,17 +37,19 @@ class TDAmeritrade:
     option_type
     """
 
-    def __init__(self, api_key=config.tda_api_key, period_type='year', period='1',
-                 frequency_type='daily', frequency='1', projection='fundamental', direction='up',
-                 change='percent'):
+    def __init__(self, api_key=config.tda_api_key, period_type='year', frequency_type='daily', frequency='1',
+                 projection='fundamental', direction='up', change='percent', start_date='2020-01-01',
+                 end_date=datetime.today()):
         self.api_key = api_key
         self.period_type = period_type
-        self.period = period
         self.frequency_type = frequency_type
         self.frequency = frequency
         self.projection = projection
         self.direction = direction
         self.change = change
+        self.start_date = str(int(datetime.strptime(start_date, "%Y-%m-%d").timestamp() * 1000))
+        self.end_date = str(int(end_date.timestamp() * 1000))
+        # self.end_date = str(int(datetime.strptime(end_date, "%Y-%m-%d").timestamp() * 1000))
 
     @staticmethod
     def get_all_tickers():
@@ -78,9 +81,10 @@ class TDAmeritrade:
     def get_prices(self, ticker):
         price_endpoint = config.prices_url.format(stock_ticker=ticker,
                                                   periodType=self.period_type,
-                                                  period=self.period,
                                                   frequencyType=self.frequency_type,
-                                                  frequency=self.frequency)
+                                                  frequency=self.frequency,
+                                                  end_date=self.end_date,
+                                                  start_date=self.start_date)
         return self.get_content(price_endpoint)
 
     def get_fundamentals(self, ticker):
@@ -104,10 +108,55 @@ class TDAmeritrade:
         return json.loads(page.content)
 
 
+class TDDataPull:
+
+    @staticmethod
+    def pull_one_minute(ticker):
+        tda = TDAmeritrade(period_type='day', frequency_type='minute')
+        return tda.get_prices(ticker)
+
+    @staticmethod
+    def pull_five_minute(ticker):
+        tda = TDAmeritrade(period_type='day', frequency_type='minute', frequency='5')
+        return tda.get_prices(ticker)
+
+    @staticmethod
+    def pull_ten_minute(ticker):
+        tda = TDAmeritrade(period_type='day', frequency_type='minute', frequency='10')
+        return tda.get_prices(ticker)
+
+    @staticmethod
+    def pull_fifteen_minute(ticker):
+        tda = TDAmeritrade(period_type='day', frequency_type='minute', frequency='15')
+        return tda.get_prices(ticker)
+
+    @staticmethod
+    def pull_thirty_minute(ticker):
+        tda = TDAmeritrade(period_type='day', frequency_type='minute', frequency='30')
+        return tda.get_prices(ticker)
+
+    @staticmethod
+    def pull_hour(ticker):
+        tda = TDAmeritrade(period_type='day', frequency_type='minute', frequency='60')
+        return tda.get_prices(ticker)
+
+    @staticmethod
+    def pull_daily(ticker):
+        tda = TDAmeritrade(period_type='year', frequency_type='daily', frequency='1')
+        return tda.get_prices(ticker)
+
+    @staticmethod
+    def pull_weekly(ticker):
+        tda = TDAmeritrade(period_type='year', frequency_type='weekly', frequency='1')
+        return tda.get_prices(ticker)
+
+
 if __name__ == "__main__":
-    tda = TDAmeritrade()
-    prices = tda.get_prices("TSLA")
-    options = tda.get_options("TSLA")
-    fund = tda.get_fundamentals("TSLA")
-    list_tickers = tda.get_all_tickers()
+    # tda = TDAmeritrade()
+    # prices = tda.get_prices("TSLA")
+    # options = tda.get_options("TSLA")
+    # fund = tda.get_fundamentals("TSLA")
+    # list_tickers = tda.get_all_tickers()
+    tddp = TDDataPull()
+    prices = tddp.pull_one_minute('TSLA')
     pass

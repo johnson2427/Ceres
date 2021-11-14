@@ -1,15 +1,13 @@
 from sqlalchemy.orm import Session
-import models
-import schemas
+from ceres.backend.models import models
 import yfinance
-from tdameritrade import TDAmeritrade
+from ceres.backend.api.tdameritrade import TDAmeritrade
 
 
 def fundamentals_data(db: Session, stock_id):
     stock = db.query(models.StockFundamentals).filter(models.StockFundamentals.id == stock_id).first()
     yahoo_data = yfinance.Ticker(stock.symbol)
     td_data = TDAmeritrade().get_fundamentals(stock.symbol)
-
     stock.ma200 = yahoo_data.info['twoHundredDayAverage']
     stock.ma50 = yahoo_data.info['fiftyDayAverage']
     stock.ebitdaMargins = yahoo_data.info['ebitdaMargins']

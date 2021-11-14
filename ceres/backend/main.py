@@ -1,17 +1,19 @@
-from fastapi import FastAPI, Request, Depends, BackgroundTasks, Form
+import os
+
+from fastapi import FastAPI, Request, Depends, Form
 from fastapi.responses import RedirectResponse
 from fastapi.templating import Jinja2Templates
 from sqlalchemy.orm import Session
-from database import SessionLocal, engine
-import models
-from models import StockFundamentals, Stocks, StockPrices
+from ceres.backend.db.database import SessionLocal, engine
+from ceres.backend.models import models
+from ceres.backend.models.models import Stocks, StockPrices
 
 
 app = FastAPI()
 
 models.Base.metadata.create_all(bind=engine)
 
-templates = Jinja2Templates(directory="templates")
+templates = Jinja2Templates(directory=os.getcwd() + "/ceres/templates")
 
 
 def get_db():
@@ -23,34 +25,21 @@ def get_db():
 
 
 @app.get("/")
-def home(request: Request, forward_pe=None, dividend_amount=None, ma50=None, ma200=None, db: Session = Depends(get_db)):
+def home(request: Request, db: Session = Depends(get_db)):
     stock_filter = request.query_params.get('filter', False)
     stocks = db.query(Stocks)
-    # if forward_pe:
-    #     stocks = stocks.filter(StockFundamentals.forward_pe < forward_pe)
-    # if dividend_amount:
-    #     stocks = stocks.filter(StockFundamentals.dividendAmount > dividend_amount)
-    # if ma50:
-    #     stocks = stocks.filter(StockFundamentals.price > StockFundamentals.ma50)
-    # if ma200:
-    #     stocks = stocks.filter(StockFundamentals.price > StockFundamentals.ma200)
-    prices = db.query(StockPrices).filter(StockPrices.high)
-    if stock_filter == 'new_intraday_highs':
-        pass
     if stock_filter == 'new_closing_highs':
         pass
-    if stock_filter == 'new_intraday_lows':
+    elif stock_filter == 'new_closing_lows':
         pass
-    if stock_filter == 'new_closing_lows':
+    elif stock_filter == 'rsi_overbought':
+        pass
+    elif stock_filter == 'rsi_oversold':
         pass
     stocks = stocks.order_by(Stocks.symbol)
     return templates.TemplateResponse("home.html", {
         "request": request,
         "stocks": stocks,
-        "dividend_yield": dividend_amount,
-        "forward_pe": forward_pe,
-        "ma200": ma200,
-        "ma50": ma50
     })
 
 
@@ -78,6 +67,22 @@ def apply_strategy(strategy_id: int = Form(...), stock_id: int = Form(...), db: 
     db.commit()
     db.refresh(stock_strategy)
     return RedirectResponse(url=f"/strategy/{strategy_id}", status_code=303)
+
+
+@app.get("/strategies")
+def strategies(request: Request, db: Session = Depends(get_db)):
+    stock_strategies = db.query(models.Strategy).all()
+    return templates.TemplateResponse("strategies.html", {
+        "request": request,
+        "strategies": stock_strategies
+    })
+
+
+@app.get("/orders")
+def strategies(request: Request, db: Session = Depends(get_db)):
+    return templates.TemplateResponse("orders.html", {
+        "request": request,
+    })
 
 
 @app.get("/strategy/{strategy_id}")
