@@ -9,7 +9,7 @@ HOST = 'localhost'
 SQL_PASSWORD = 'password'
 SQL_PORT = 5432
 SQL_DB = 'test'
-SQL_USER = 'postgres'
+SQL_USER = 'jeremy'
 
 tda_api_key = 'GGR3LEWNRQHMOKMVQPQFMIYFGGFIU8JG'
 prices_url = 'https://api.tdameritrade.com/v1/marketdata/{stock_ticker}/pricehistory?periodType={periodType}&' \

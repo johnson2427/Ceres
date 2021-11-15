@@ -180,13 +180,13 @@ class StockData(SqlConnection):
 
 
 if __name__ == "__main__":
-    import time
-    start = time.time()
+    # import time
+    # start = time.time()
     sd = StockData()
     # sd.get_stocks()
-    df_stocks = sd.get_stocks_df_from_db()
-    frequency = 'daily'
-    sd.get_historical_prices(df_stocks, frequency)
+    # df_stocks = sd.get_stocks_df_from_db()
+    # frequency = 'daily'
+    # sd.get_historical_prices(df_stocks, frequency)
     # p1 = multiprocessing.Process(target=sd.get_historical_prices, args=(df_stocks[0:1307], frequency))
     # p2 = multiprocessing.Process(target=sd.get_historical_prices,
     #                              args=(df_stocks[1307:2615].reset_index(drop=True), frequency))
@@ -218,10 +218,10 @@ if __name__ == "__main__":
     # p6.join()
     # p7.join()
     # p8.join()
-    print("Done")
+    # print("Done")
     # sd.get_historical_prices(df_stocks, 'daily')
-    end = time.time()
-    time = end-start
-    print(time)
-    # sd.create_strategy("opening_range_breakout")
-    # sd.create_strategy("opening_range_breakdown")
+    # end = time.time()
+    # time = end-start
+    # print(time)
+    sd.create_strategy("opening_range_breakout")
+    sd.create_strategy("opening_range_breakdown")

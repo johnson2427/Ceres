@@ -1,19 +1,36 @@
 import os
 
 from fastapi import FastAPI, Request, Depends, Form
-from fastapi.responses import RedirectResponse
+from fastapi.responses import RedirectResponse, JSONResponse
+from fastapi.encoders import jsonable_encoder
 from fastapi.templating import Jinja2Templates
 from sqlalchemy.orm import Session
 from ceres.backend.db.database import SessionLocal, engine
 from ceres.backend.models import models
 from ceres.backend.models.models import Stocks, StockPrices
+from fastapi.middleware.cors import CORSMiddleware
 
 
 app = FastAPI()
 
+origins = [
+    "http://localhost",
+    "http://localhost:8000",
+    "http://localhost:3000",
+]
+
+app.add_middleware(
+    CORSMiddleware,
+    allow_origins=origins,
+    allow_credentials=True,
+    allow_methods=["*"],
+    allow_headers=["*"],
+)
+
 models.Base.metadata.create_all(bind=engine)
 
-templates = Jinja2Templates(directory=os.getcwd() + "/ceres/templates")
+templates = Jinja2Templates(directory="../templates")
+print(os.getcwd() + "/ceres/templates/")
 
 
 def get_db():
@@ -37,10 +54,13 @@ def home(request: Request, db: Session = Depends(get_db)):
     elif stock_filter == 'rsi_oversold':
         pass
     stocks = stocks.order_by(Stocks.symbol)
-    return templates.TemplateResponse("home.html", {
-        "request": request,
-        "stocks": stocks,
-    })
+    # return templates.TemplateResponse("home.html", {
+    #     "request": request,
+    #     "stocks": stocks,
+    # })
+    json_encoded_stocks = jsonable_encoder(stocks.all())
+
+    return JSONResponse(content=json_encoded_stocks)
 
 
 @app.get("/stock/{symbol}")
@@ -104,4 +124,4 @@ def strategy(request: Request, strategy_id, db: Session = Depends(get_db)):
 if __name__ == "__main__":
     import uvicorn
 
-    uvicorn.run("main:app", host="0.0.0.0", port=8000, reload=True)
+    uvicorn.run("main:app", host="127.0.0.1", port=8000, reload=True)
