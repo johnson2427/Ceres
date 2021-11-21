@@ -70,13 +70,15 @@ def stock_detail(request: Request, symbol, db: Session = Depends(get_db)):
     stock_id = stock.id
     prices = db.query(StockPrices)
     prices = prices.filter(StockPrices.stock_id == stock_id)
-    strategies = db.query(models.Strategy).all()
-    return templates.TemplateResponse("stock_detail.html", {
-        "request": request,
-        "ticker": symbol,
-        "stock": stock,
-        "prices": prices,
-        "strategies": strategies
+
+    # need to extract the data from the queries and encode them into dictionaries
+    json_encoded_prices = jsonable_encoder(prices.all())
+    json_encoded_strategies = jsonable_encoder(db.query(models.Strategy).all())
+
+    return JSONResponse(content={
+        "symbol": symbol,
+        "prices": json_encoded_prices,
+        "strategies": json_encoded_strategies
     })
 
 
